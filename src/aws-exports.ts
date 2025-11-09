@@ -14,13 +14,14 @@ const awsConfig = {
   aws_user_pools_web_client_id: auth.user_pool_client_id,
   aws_cognito_identity_pool_id: auth.identity_pool_id,
 
-  // AppSync / Data
-  aws_appsync_graphqlEndpoint: amplifyOutputs.data?.url,
-  aws_appsync_region: amplifyOutputs.data?.aws_region,
-  aws_appsync_authenticationType:
-    amplifyOutputs.data?.default_authorization_type ??
-    (amplifyOutputs.data?.api_key ? 'API_KEY' : 'AWS_IAM'),
-  aws_appsync_apiKey: amplifyOutputs.data?.api_key,
+    // AppSync / Data
+    aws_appsync_graphqlEndpoint: amplifyOutputs.data?.url,
+    aws_appsync_region: amplifyOutputs.data?.aws_region,
+    // read api_key via `any` cast since some amplify_outputs variants don't declare it in the typed shape
+    aws_appsync_authenticationType:
+      amplifyOutputs.data?.default_authorization_type ??
+      (((amplifyOutputs.data as any)?.api_key as string) ? 'API_KEY' : 'AWS_IAM'),
+    aws_appsync_apiKey: (amplifyOutputs.data as any)?.api_key,
 
   // Also include Auth config object for direct Amplify Auth configuration
   Auth: {
