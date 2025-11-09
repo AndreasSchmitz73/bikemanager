@@ -1,10 +1,11 @@
-import { Amplify } from "aws-amplify";
+import { Amplify } from 'aws-amplify';
 import { useState } from "react";
 import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import awsConfig from "./aws-exports";
 import BikesPage from './BikesPage';
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { StravaConnect } from './components/StravaConnect';
 
 // Konfiguriere Amplify mit der korrekten Backend-Konfiguration
 try {
@@ -43,8 +44,12 @@ function AuthenticatedContent({ signOut, user }: AuthenticatedContentProps) {
         <button onClick={() => setView('bikes')} style={{ marginRight: 8 }}>
           Bikes anzeigen
         </button>
+        <StravaConnect />
         {signOut && (
-          <button onClick={signOut}>
+          <button 
+            onClick={signOut}
+            style={{ marginLeft: 8 }}
+          >
             Abmelden
           </button>
         )}

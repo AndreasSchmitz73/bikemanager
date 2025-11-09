@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { generateClient } from "aws-amplify/data";
+import { generateClient } from 'aws-amplify/api';
 import type { Schema } from "../amplify/data/resource";
 import type { Bike, BikeList } from "./types";
 import { LoadingWrapper } from "./components/LoadingWrapper";
@@ -48,9 +48,15 @@ export default function BikesPage({ onBack }: { onBack: () => void }) {
       } catch (e: any) {
         console.error('Error fetching bikes', e);
         if (!cancelled) {
-          setError(String(e?.message ?? e));
-          // Retry up to 3 times with increasing delay
-          if (retryCount < 3) {
+          const isNetworkError = e.name === 'NetworkError' || e.message?.includes('network');
+          const errorMessage = isNetworkError 
+            ? 'Netzwerkfehler beim Laden der Bikes. Bitte überprüfen Sie Ihre Internetverbindung.'
+            : String(e?.message ?? 'Ein unerwarteter Fehler ist aufgetreten');
+          
+          setError(errorMessage);
+          
+          // Retry nur bei Netzwerkfehlern oder wenn der Server nicht erreichbar ist
+          if (retryCount < 3 && (isNetworkError || e.message?.includes('server'))) {
             retryTimeout = setTimeout(() => {
               if (!cancelled) {
                 setRetryCount(c => c + 1);
