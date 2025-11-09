@@ -5,7 +5,13 @@ import type { Bike, BikeList } from "./types";
 import { LoadingWrapper } from "./components/LoadingWrapper";
 
 // Initialize the client once (not on every render)
-const client = generateClient<Schema>() as any;
+let client: any;
+try {
+  client = generateClient<Schema>();
+  console.log('Amplify Data Client initialisiert:', client);
+} catch (error) {
+  console.error('Fehler bei der Client-Initialisierung:', error);
+}
 
 export default function BikesPage({ onBack }: { onBack: () => void }) {
   const [bikes, setBikes] = useState<Bike[]>([]);
@@ -15,9 +21,16 @@ export default function BikesPage({ onBack }: { onBack: () => void }) {
 
   useEffect(() => {
     const bikeModel = client?.models?.Bike;
+    console.log('Verfügbare Models:', client?.models);
+    
     if (!bikeModel) {
+      console.error('Bike Model nicht verfügbar:', {
+        client: !!client,
+        models: client?.models,
+        bikeModel
+      });
       setError(
-        'Bike model not available. Stelle sicher, dass Amplify Data Codegen ausgeführt wurde und `amplify_outputs.json` gültig ist.'
+        'Bike model nicht verfügbar. Bitte stellen Sie sicher, dass die Backend-Konfiguration aktuell ist und alle Modelle korrekt synchronisiert wurden.'
       );
       setLoading(false);
       return;
